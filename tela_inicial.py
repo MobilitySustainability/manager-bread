@@ -58,7 +58,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
     sidebar.configure(style="TFrame")
 
 
-    if(tipo_usu == "master" and usu_ativo == "Ativo"):
+    if((tipo_usu == "master" or tipo_usu == "Prof") and usu_ativo == "Ativo"):
 
         # Criando o menu lateral
         menu_items = [
@@ -68,7 +68,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
             ("Cad adm", "fas fa-bell"),
         ]
 
-    elif(tipo_usu == "admin" and usu_ativo == "Ativo"):
+    elif((tipo_usu == "admin" or tipo_usu == "Prof") and usu_ativo == "Ativo"):
 
         # Criando o menu lateral
         menu_items = [
@@ -80,7 +80,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
             ("Gereciar usu", "fas fa-bell"),
         ]
 
-    elif(tipo_usu == "usuario" and usu_ativo == "Ativo"):
+    elif((tipo_usu == "usuario" or tipo_usu == "Prof") and usu_ativo == "Ativo"):
 
         # Criando o menu lateral
         menu_items = [
