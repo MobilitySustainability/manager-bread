@@ -1,0 +1,7 @@
+pip install ttkbootstrap
+pip install matplotlib
+pip install numpy
+pip install mysql-connector-python
+pip install Pillow
+
+
