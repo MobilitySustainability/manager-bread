@@ -87,7 +87,19 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
             ("Home", "fas fa-bell"),
             ("Caixa", "fas fa-bell"),
         ]
-
+        
+    elif(tipo_usu == "Prof" and usu_ativo == "Ativo"):
+        
+        # Criando o menu lateral
+        menu_items = [
+            ("Home", "fas fa-bell"),
+            ("Caixa", "fas fa-bell"),
+            ("Estoque", "fas fa-bell"),
+            ("Funcionario", "fas fa-bell"),
+            ("Pedidos", "fas fa-bell"),
+            ("Gereciar usu", "fas fa-bell"),
+            ("Cad adm", "fas fa-bell"),
+        ]
 
     for item, icon in menu_items:
         button = ttk.Button(sidebar, text=item, command=lambda item=item: menu_item_click(item), width=20, style="TButton")
@@ -109,9 +121,14 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
     #alterar conforme escolha
     def menu_item_click(item):
 
-        if(item == "Estoque"):
+        if(item == "Home"):
+            
+            messagebox.showerror("Erro", "Em desenvolvimento")
+            
+        elif(item == "Estoque"):
 
-            estoque(content)
+            #estoque(content)
+            messagebox.showerror("Erro", "Em desenvolvimento")
 
         elif(item == "Caixa"):
 
@@ -119,7 +136,8 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
         elif(item == "Pedidos"):
 
-            pedidos(content)
+            #pedidos(content)
+            messagebox.showerror("Erro", "Em desenvolvimento")
 
         elif(item == "Cad adm"):
 
@@ -127,11 +145,13 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
         elif(item == "Funcionario"):
 
-            funcionario(content)
+            #funcionario(content)
+            messagebox.showerror("Erro", "Em desenvolvimento")
 
         elif(item == "Gereciar usu"):
 
-            gerenciar_usu(content)
+            #gerenciar_usu(content)
+            messagebox.showerror("Erro", "Em desenvolvimento")
             
 
     # Iniciar a interface
