@@ -3,12 +3,13 @@ import ttkbootstrap as ttkb
 import matplotlib.pyplot as plt
 import numpy as np
 import subprocess
+import unicodedata
 from tkinter import ttk
 from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from banco import pegar_produtos
 from banco import confirmar_pagamento
-
+from cores import cor_fundo, cor_texto, cor_borda, cor_botao, cor_sair, cor_hover_botao, cor_hover_sair
 
 def iniciar_caixa_supermercado(container, tipo_usu, nome_usu, tenant_id):
 
@@ -41,10 +42,8 @@ def iniciar_caixa_supermercado(container, tipo_usu, nome_usu, tenant_id):
             treeview.delete(item)
             total = sum(item["preco"] for item in carrinho)
             total_label.config(text=f"Total: R$ {total:.2f}")
-        
             
-
-
+        
     # Função para atualizar a lista de carrinho na interface
     def atualizar_carrinho():
         lista_carrinho.delete(*lista_carrinho.get_children())
@@ -57,21 +56,73 @@ def iniciar_caixa_supermercado(container, tipo_usu, nome_usu, tenant_id):
     def adicionar_produto(event=None):
 
         codigo = entrada_codigo.get().strip()
+        
+        try:
             
-        if codigo:
-            for produto in produtos:
-                produto_carrinho = produto
-                produto = produto["codigo"]
-                produto = int(produto)
-                codigo = int(codigo)
-                if (produto == codigo):
-                    carrinho.append(produto_carrinho)
-                    atualizar_carrinho()
-                    return
-            messagebox.showerror("Erro", "Produto não encontrado com este código.")
+            codigo = int(codigo)
+            
+            if codigo:
+                
+                for produto in produtos:
+                    produto_carrinho = produto
+                    produto = produto["codigo"]
+                    produto = int(produto)
+                    codigo = int(codigo)
+                    if (produto == codigo):
+                        carrinho.append(produto_carrinho)
+                        atualizar_carrinho()
+                        return
+                    
+                messagebox.showerror("Erro", "Produto não encontrado com este código.")
 
-        else:
-            messagebox.showwarning("Entrada inválida", "Digite o código do produto.")
+            else:
+                
+                messagebox.showwarning("Entrada inválida", "Digite o código do produto.")
+            
+        except ValueError:
+            
+            try:
+                
+                codigo = float(codigo)
+                
+                if codigo:
+                
+                    for produto in produtos:
+                        produto_carrinho = produto
+                        produto = produto["codigo"]
+                        produto = int(produto)
+                        codigo = int(codigo)
+                        if (produto == codigo):
+                            carrinho.append(produto_carrinho)
+                            atualizar_carrinho()
+                            return
+                        
+                    messagebox.showerror("Erro", "Produto não encontrado com este código.")
+
+                else:
+                    
+                    messagebox.showwarning("Entrada inválida", "Digite o código do produto.")
+                
+            except ValueError:
+                
+                if codigo:
+                
+                    for produto in produtos:
+                        produto_carrinho = produto
+                        produto = produto["nome"]
+                        produto = remover_acentos(produto).lower()
+                        codigo  = remover_acentos(codigo).lower()
+                        
+                        if codigo in produto:
+                            carrinho.append(produto_carrinho)
+                            atualizar_carrinho()
+                            return
+                        
+                    messagebox.showerror("Erro", "Produto não encontrado com este nome.")
+
+                else:
+                    
+                    messagebox.showwarning("Entrada inválida", "Digite o código ou nome do produto.")
 
     # Função para gerar o gráfico de categorias
     def processar_pagamento():
@@ -99,8 +150,8 @@ def iniciar_caixa_supermercado(container, tipo_usu, nome_usu, tenant_id):
     
     # Definindo o estilo para o Treeview
     style = ttk.Style()
-    style.configure("Treeview", background="#2c3e50", foreground="white", fieldbackground="#2c3e50")
-    style.configure("Treeview.Heading", background="#34495e", foreground="white")
+    style.configure("Treeview", background=cor_fundo, foreground=cor_texto, fieldbackground=cor_fundo)
+    style.configure("Treeview.Heading", background=cor_fundo, foreground=cor_texto)
 
     lista_carrinho = ttk.Treeview(container, columns=("Produto", "Preço","Remover"), show="headings", style="Treeview", height=6)
     lista_carrinho.heading("Produto", text="Produto", anchor="w")
@@ -110,7 +161,7 @@ def iniciar_caixa_supermercado(container, tipo_usu, nome_usu, tenant_id):
     container.grid_rowconfigure(2, weight=1)
 
 
-    total_label = ttk.Label(container, text="Total: R$ 0.00", background="#2c3e50", foreground="white", font=("Arial", 14))
+    total_label = ttk.Label(container, text="Total: R$ 0.00", background=cor_fundo, foreground=cor_texto, font=("Arial", 14))
     total_label.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
 
     btn_grafico = ttk.Button(container, text="Confirmar", command=processar_pagamento)
@@ -133,3 +184,8 @@ def iniciar_caixa_supermercado(container, tipo_usu, nome_usu, tenant_id):
     container.grid_rowconfigure(3, weight=0)
     container.grid_rowconfigure(4, weight=0)
     container.grid_rowconfigure(5, weight=1)
+    
+    
+def remover_acentos(texto):
+    return ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn')
+

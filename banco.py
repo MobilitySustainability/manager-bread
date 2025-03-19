@@ -36,9 +36,9 @@ def verificar_login_bd(usuario, senha):
             resultado = cursor.fetchone()
             cursor.close()
             conn.close()
-
+            
             if resultado:
-
+                
                 return resultado
             
             else:

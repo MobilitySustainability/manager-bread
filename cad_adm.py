@@ -2,6 +2,7 @@ import tkinter as tk
 import ttkbootstrap as ttkb
 from tkinter import ttk, messagebox
 from banco import cadAdm, permissaoUsu, deleteCadAdm
+from cores import cor_fundo, cor_texto
 
 def cad_adm(container):
     for widget in container.winfo_children():
@@ -39,20 +40,20 @@ def cad_adm(container):
             messagebox.showwarning("Aviso", "Preencha todos os campos!")
 
     # Criando Labels e Entradas
-    ttk.Label(container, text="Nome:", background="#34495e", foreground="white").grid(row=0, column=0, padx=10, pady=5, sticky="w")
-    entry_nome = ttk.Entry(container,background="#34495e", width=50)
+    ttk.Label(container, text="Nome:", background=cor_fundo, foreground=cor_texto).grid(row=0, column=0, padx=10, pady=5, sticky="w")
+    entry_nome = ttk.Entry(container,background=cor_fundo, width=50)
     entry_nome.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
 
-    ttk.Label(container, text="E-mail:", background="#34495e", foreground="white").grid(row=1, column=0, padx=10, pady=5, sticky="w")
+    ttk.Label(container, text="E-mail:", background=cor_fundo, foreground=cor_texto).grid(row=1, column=0, padx=10, pady=5, sticky="w")
     entry_email = ttk.Entry(container, width=50)
     entry_email.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
 
-    ttk.Label(container, text="Senha:", background="#34495e", foreground="white").grid(row=2, column=0, padx=10, pady=5, sticky="w")
+    ttk.Label(container, text="Senha:", background=cor_fundo, foreground=cor_texto).grid(row=2, column=0, padx=10, pady=5, sticky="w")
     entry_senha = ttk.Entry(container, width=50, show="*")  # Esconder senha
     entry_senha.grid(row=2, column=1, padx=10, pady=5, sticky="ew")
 
     # Combobox para Permissão
-    ttk.Label(container, text="Permissão:", background="#34495e", foreground="white").grid(row=3, column=0, padx=10, pady=5, sticky="w")
+    ttk.Label(container, text="Permissão:", background=cor_fundo, foreground=cor_texto).grid(row=3, column=0, padx=10, pady=5, sticky="w")
     combobox_permissao = ttk.Combobox(container, values=opcoes_permissao, state="readonly", width=47)
     combobox_permissao.grid(row=3, column=1, padx=10, pady=5, sticky="ew")
     combobox_permissao.current(0)

@@ -12,19 +12,18 @@ from estoque import estoque
 from funcionario import funcionario
 from gerenciar_usu import gerenciar_usu
 from pedidos import pedidos
+from home import home
+from cores import cor_fundo, cor_texto, cor_borda, cor_botao, cor_sair, cor_hover_botao, cor_hover_sair
 
 
 def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
     # Criação da janela principal
-    global root
-    root = ttkb.Window(themename="flatly")
-    root.title("Menu - menager bread")
-
-    # Configuração da largura e altura da janela
-    root.geometry("800x600")
-    # root.attributes("-fullscreen", True)
+    global root,content
     
+    root = ttkb.Window(themename="flatly")
+    root.title("Menager Bread")
+    root.state("zoomed")
     
     # Função de logout (exemplo)
     def logout():
@@ -32,31 +31,27 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
         root.destroy()
         subprocess.run(["python", "login.py"])
 
-    # Função para exibir o nome do usuário
-    def exibir_usuario():
-        messagebox.showinfo("Bem Vindo(a)", f"{nome_usu}")
-
     # Barra de navegação superior (navbar)
     navbar = ttk.Frame(root, padding=5)
     navbar.pack(side=tk.TOP, fill=tk.X, anchor="w")
 
-    label_titulo = ttk.Label(navbar, text="MENU - MANAGER - BREAD", background="#2c3e50", font=("Helvetica", 16),foreground="white")
+    label_titulo = ttk.Label(navbar, text="MANAGER BREAD", background=cor_fundo, font=("Cinzel", 24), foreground=cor_texto)
     label_titulo.pack(side=tk.LEFT, padx=10, )
 
     # Menu suspenso para o usuário
-    usuario_btn = ttk.Menubutton(navbar, text=f"Bem Vindo(a), {nome_usu}", direction="below")
+    usuario_btn = tk.Menubutton(navbar, text=f"Bem Vindo(a), {nome_usu}", font=("Helvetica", 24), direction="below")
+    usuario_btn.config(background=cor_fundo, foreground=cor_texto)
     usuario_menu = tk.Menu(usuario_btn, tearoff=0)
     usuario_menu.add_command(label="Sair", command=logout)
     usuario_btn.config(menu=usuario_menu)
     usuario_btn.pack(side=tk.RIGHT)
 
     # Sidebar (menu lateral)
-    sidebar = ttk.Frame(root, width=200, relief="sunken", padding=5, style="TFrame")
+    sidebar = ttk.Frame(root, width=200, relief="sunken", padding=20, style="TFrame")
     sidebar.pack(side=tk.LEFT, fill=tk.Y)
 
     # Alterar o fundo da sidebar para combinar com os botões
     sidebar.configure(style="TFrame")
-
 
     if(tipo_usu == "master" and usu_ativo == "Ativo"):
 
@@ -65,7 +60,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
             ("Home", "fas fa-bell"),
             ("Estoque", "fas fa-bell"),
             ("Pedidos", "fas fa-bell"),
-            ("Cad adm", "fas fa-bell"),
+            ("Cadastro de Administrador", "fas fa-bell"),
         ]
 
     elif(tipo_usu == "admin" and usu_ativo == "Ativo"):
@@ -75,9 +70,9 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
             ("Home", "fas fa-bell"),
             ("Caixa", "fas fa-bell"),
             ("Estoque", "fas fa-bell"),
-            ("Funcionario", "fas fa-bell"),
+            ("Funcionário", "fas fa-bell"),
             ("Pedidos", "fas fa-bell"),
-            ("Gereciar usu", "fas fa-bell"),
+            ("Gerenciar Usuário", "fas fa-bell"),
         ]
 
     elif(tipo_usu == "usuario" and usu_ativo == "Ativo"):
@@ -95,67 +90,98 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
             ("Home", "fas fa-bell"),
             ("Caixa", "fas fa-bell"),
             ("Estoque", "fas fa-bell"),
-            ("Funcionario", "fas fa-bell"),
+            ("Funcionário", "fas fa-bell"),
             ("Pedidos", "fas fa-bell"),
-            ("Gereciar usu", "fas fa-bell"),
-            ("Cad adm", "fas fa-bell"),
+            ("Gerenciar Usuário", "fas fa-bell"),
+            ("Cadastro de Administrador", "fas fa-bell"),
         ]
 
     for item, icon in menu_items:
-        button = ttk.Button(sidebar, text=item, command=lambda item=item: menu_item_click(item), width=20, style="TButton")
-        button.pack(pady=5)
+        button = ttk.Button(sidebar, 
+                            text=item, 
+                            command=lambda 
+                            item=item: menu_item_click(item), 
+                            width=40, 
+                            style="Custom.TButton")
+        button.pack(pady=20)
 
     # Estilo para os botões do menu
-    root.style.configure("TButton", background="#2c3e50", relief="flat")
-    root.style.configure("TFrame", background="#2c3e50")
+    root.style.configure("TButton", background=cor_botao, relief="flat")
+    root.style.configure("TFrame", background=cor_fundo)
 
     # Divisão do conteúdo principal
     content = ttk.Frame(root, padding=10, style="TFrame")
     content.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-    # Estilo para o conteúdo
-    root.style.configure("TFrame", background="#2c3e50")
-    content_label = ttk.Label(content, text="Bem-vindo à área de MENU!", font=("Helvetica", 14), background="#2c3e50", style="TLabel", foreground="white")
-    content_label.pack(pady=20)
     
-    #alterar conforme escolha
+    # Obtém as dimensões da tela
+    tela_largura = content.winfo_screenwidth()
+
+    # Alterar conforme escolha
     def menu_item_click(item):
-
-        if(item == "Home"):
+        # Limpar o conteúdo atual (remover todos os widgets)
+        for widget in content.winfo_children():
+            widget.destroy()
+        
+        if item == "Home":
+            home(content)
             
-            messagebox.showerror("Erro", "Em desenvolvimento")
-            
-        elif(item == "Estoque"):
-
+        elif item == "Estoque":
             #estoque(content)
             messagebox.showerror("Erro", "Em desenvolvimento")
 
-        elif(item == "Caixa"):
-
+        elif item == "Caixa":
+            
             iniciar_caixa_supermercado(content, tipo_usu, nome_usu, tenant_id)
 
-        elif(item == "Pedidos"):
-
+        elif item == "Pedidos":
             #pedidos(content)
             messagebox.showerror("Erro", "Em desenvolvimento")
 
-        elif(item == "Cad adm"):
-
+        elif item == "Cadastro de Administrador":
             cad_adm(content)
 
-        elif(item == "Funcionario"):
-
+        elif item == "Funcionário":
             #funcionario(content)
             messagebox.showerror("Erro", "Em desenvolvimento")
 
-        elif(item == "Gereciar usu"):
-
+        elif item == "Gerenciar Usuário":
             #gerenciar_usu(content)
             messagebox.showerror("Erro", "Em desenvolvimento")
+            
+            home(content)
+            
+            if(item == "Home"):
+                
+                home(content)
+                
+            elif(item == "Estoque"):
+
+                #estoque(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+            elif(item == "Caixa"):
+
+                iniciar_caixa_supermercado(content, tipo_usu, nome_usu, tenant_id)
+
+            elif(item == "Pedidos"):
+
+                #pedidos(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+            elif(item == "Cadastro de Administrador"):
+
+                cad_adm(content)
+
+            elif(item == "Funcionário"):
+
+                #funcionario(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+            elif(item == "Gerenciar Usuário"):
+
+                #gerenciar_usu(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
             
 
     # Iniciar a interface
     root.mainloop()
-
-# Chama a função que cria a interface gráfica
-# criar_menu_principal()

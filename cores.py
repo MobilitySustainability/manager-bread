@@ -1,0 +1,7 @@
+cor_fundo = "#FDF6E5"
+cor_texto = "#501A00"
+cor_borda = "black"
+cor_botao = "#501A00"
+cor_sair = "red"
+cor_hover_botao = "#703307"
+cor_hover_sair = "darkred"
