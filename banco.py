@@ -33,11 +33,15 @@ def verificar_login_bd(usuario, senha):
             """
 
             cursor.execute(query, (usuario,senha))
-            resultado = cursor.fetchone()
+            resultado = cursor.fetchall()
+            
+            for linha in resultado:
+                resultado = linha
+                
             cursor.close()
             conn.close()
             
-            if resultado:
+            if(resultado != ""):
                 
                 return resultado
             
@@ -302,7 +306,6 @@ def permissaoUsu():
         conn.close()
         return retorno
 
-
 def cadAdm(nome, email, senha, permissao_id):
     conn = conectar_mysql()
 
@@ -345,7 +348,6 @@ def cadAdm(nome, email, senha, permissao_id):
         conn.close()
         return False  # Conexão não disponível, retorna False
 
-
 def insertCadAdm(nome, email, senha, permissao_id):
     conn = conectar_mysql()
 
@@ -375,7 +377,6 @@ def insertCadAdm(nome, email, senha, permissao_id):
     else:
         conn.close()
         return False  # Conexão não disponível
-
 
 def updateCadAdm(nome, email, senha, permissao_id):
     conn = conectar_mysql()
@@ -410,7 +411,6 @@ def updateCadAdm(nome, email, senha, permissao_id):
         retorno = "Conexão não disponível"
         return retorno
     
-    
 def deleteCadAdm(email):
     conn = conectar_mysql()
 
@@ -439,4 +439,54 @@ def deleteCadAdm(email):
     else:
         retorno = "Conexão não disponível"
         return retorno
-        
+
+def pegar_funcionarios():
+
+    funcionarios = []
+    
+    conn = conectar_mysql()
+
+    if conn is not None and conn.is_connected():
+        try:
+            cursor = conn.cursor()
+            query = """
+            SELECT 
+            nome,
+            email,
+            ativo AS salario
+            FROM 
+            Usuario
+            WHERE
+            permissao_id = %s
+            """
+            cursor.execute(query, (3,))
+            resultados = cursor.fetchall()
+            
+            for linha in resultados:
+                
+                funcionario = {
+                    "Nome": linha[0],
+                    "Email": linha[1],
+                    "Salario": float(linha[2]),
+                }
+                funcionarios.append(funcionario)
+                
+            cursor.close()
+            conn.close()
+
+            if (funcionarios != ""):
+
+                return funcionarios
+            
+            else:
+                funcionarios = ""
+                return funcionarios
+             
+        except mysql.connector.Error as e:
+            funcionarios = f"Erro ao executar a consulta: {e}"
+            conn.close()
+            return funcionarios
+    else:
+        funcionarios = "Conexão não disponível"
+        conn.close()
+        return funcionarios

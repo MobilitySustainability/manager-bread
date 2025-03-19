@@ -1,15 +1,30 @@
 import tkinter as tk
 import ttkbootstrap as ttkb
+import threading
 from tkinter import ttk, messagebox
 from banco import cadAdm, permissaoUsu, deleteCadAdm
+from carregamento_de_telas import carregamento
 from cores import cor_fundo, cor_texto
 
-def cad_adm(container):
+def AbrirCadAdm(container):
+    
+    def carregar():
+        
+        carregamento(container)
+        
+        permissoes = permissaoUsu()  
+        
+        container.after(0, cad_adm, container, permissoes)
+        
+    thread = threading.Thread(target=carregar)
+    thread.start()
+
+def cad_adm(container, permissoes):
     for widget in container.winfo_children():
         widget.destroy()
 
     # Buscar permissões do banco de dados
-    permissoes = permissaoUsu()  
+    
     opcoes_permissao = [p["tipo"] for p in permissoes] if isinstance(permissoes, list) else ["Nenhuma Permissão"]
 
     def adicionar_usuario():

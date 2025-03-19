@@ -6,10 +6,10 @@ import subprocess
 from tkinter import ttk
 from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from caixa import iniciar_caixa_supermercado
-from cad_adm import cad_adm
+from caixa import AbrirCaixa
+from cad_adm import AbrirCadAdm
 from estoque import estoque
-from funcionario import funcionario
+from funcionario import AbrirFuncionario
 from gerenciar_usu import gerenciar_usu
 from pedidos import pedidos
 from home import home
@@ -58,8 +58,11 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
         # Criando o menu lateral
         menu_items = [
             ("Home", "fas fa-bell"),
+            ("Caixa", "fas fa-bell"),
             ("Estoque", "fas fa-bell"),
+            ("Funcionário", "fas fa-bell"),
             ("Pedidos", "fas fa-bell"),
+            ("Gerenciar Usuário", "fas fa-bell"),
             ("Cadastro de Administrador", "fas fa-bell"),
         ]
 
@@ -83,18 +86,6 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
             ("Caixa", "fas fa-bell"),
         ]
         
-    elif(tipo_usu == "Prof" and usu_ativo == "Ativo"):
-        
-        # Criando o menu lateral
-        menu_items = [
-            ("Home", "fas fa-bell"),
-            ("Caixa", "fas fa-bell"),
-            ("Estoque", "fas fa-bell"),
-            ("Funcionário", "fas fa-bell"),
-            ("Pedidos", "fas fa-bell"),
-            ("Gerenciar Usuário", "fas fa-bell"),
-            ("Cadastro de Administrador", "fas fa-bell"),
-        ]
 
     for item, icon in menu_items:
         button = ttk.Button(sidebar, 
@@ -116,39 +107,108 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
     # Obtém as dimensões da tela
     tela_largura = content.winfo_screenwidth()
 
+    home(content)
+    
     # Alterar conforme escolha
     def menu_item_click(item):
         # Limpar o conteúdo atual (remover todos os widgets)
         for widget in content.winfo_children():
             widget.destroy()
-        
+            
         if item == "Home":
+            
             home(content)
             
+            if(item == "Home"):
+                
+                home(content)
+                
+            elif(item == "Caixa"):
+
+                AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
+
+            elif(item == "Pedidos"):
+
+                #pedidos(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+            elif(item == "Cadastro de Administrador"):
+
+                AbrirCadAdm(content)
+
+            elif(item == "Funcionário"):
+            
+                AbrirFuncionario(content)
+
+            elif(item == "Gerenciar Usuário"):
+
+                #gerenciar_usu(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+        
         elif item == "Estoque":
             #estoque(content)
             messagebox.showerror("Erro", "Em desenvolvimento")
+            
+            if(item == "Home"):
+                
+                home(content)
+                
+            elif(item == "Caixa"):
+
+                AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
+
+            elif(item == "Pedidos"):
+
+                #pedidos(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+            elif(item == "Cadastro de Administrador"):
+
+                AbrirCadAdm(content)
+
+            elif(item == "Funcionário"):
+
+                AbrirFuncionario(content)
+
+            elif(item == "Gerenciar Usuário"):
+
+                #gerenciar_usu(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
 
         elif item == "Caixa":
             
-            iniciar_caixa_supermercado(content, tipo_usu, nome_usu, tenant_id)
+            AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
+            
+            if(item == "Home"):
+                
+                home(content)
+                
+            elif(item == "Estoque"):
+
+                #estoque(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+            elif(item == "Pedidos"):
+
+                #pedidos(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+            elif(item == "Cadastro de Administrador"):
+
+                AbrirCadAdm(content)
+
+            elif(item == "Funcionário"):
+
+                AbrirFuncionario(content)
+
+            elif(item == "Gerenciar Usuário"):
+
+                #gerenciar_usu(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
 
         elif item == "Pedidos":
             #pedidos(content)
             messagebox.showerror("Erro", "Em desenvolvimento")
-
-        elif item == "Cadastro de Administrador":
-            cad_adm(content)
-
-        elif item == "Funcionário":
-            #funcionario(content)
-            messagebox.showerror("Erro", "Em desenvolvimento")
-
-        elif item == "Gerenciar Usuário":
-            #gerenciar_usu(content)
-            messagebox.showerror("Erro", "Em desenvolvimento")
-            
-            home(content)
             
             if(item == "Home"):
                 
@@ -161,7 +221,68 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Caixa"):
 
-                iniciar_caixa_supermercado(content, tipo_usu, nome_usu, tenant_id)
+                AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
+
+            elif(item == "Cadastro de Administrador"):
+
+                AbrirCadAdm(content)
+
+            elif(item == "Funcionário"):
+
+                AbrirFuncionario(content)
+
+            elif(item == "Gerenciar Usuário"):
+
+                #gerenciar_usu(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+        elif item == "Cadastro de Administrador":
+            
+            AbrirCadAdm(content)
+            
+            if(item == "Home"):
+                
+                home(content)
+                
+            elif(item == "Estoque"):
+
+                #estoque(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+            elif(item == "Caixa"):
+
+                AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
+
+            elif(item == "Pedidos"):
+
+                #pedidos(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+            elif(item == "Funcionário"):
+
+                AbrirFuncionario(content)
+
+            elif(item == "Gerenciar Usuário"):
+
+                #gerenciar_usu(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+        elif item == "Funcionário":
+            
+            AbrirFuncionario(content)
+            
+            if(item == "Home"):
+                
+                home(content)
+                
+            elif(item == "Estoque"):
+
+                #estoque(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+            elif(item == "Caixa"):
+
+                AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
 
             elif(item == "Pedidos"):
 
@@ -170,17 +291,44 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Cadastro de Administrador"):
 
-                cad_adm(content)
-
-            elif(item == "Funcionário"):
-
-                #funcionario(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
+                AbrirCadAdm(content)
 
             elif(item == "Gerenciar Usuário"):
 
                 #gerenciar_usu(content)
                 messagebox.showerror("Erro", "Em desenvolvimento")
+
+        elif item == "Gerenciar Usuário":
+            
+            #gerenciar_usu(content)
+            messagebox.showerror("Erro", "Em desenvolvimento")
+            
+            
+            if(item == "Home"):
+                
+                home(content)
+                
+            elif(item == "Estoque"):
+
+                #estoque(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+            elif(item == "Caixa"):
+
+                AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
+
+            elif(item == "Pedidos"):
+
+                #pedidos(content)
+                messagebox.showerror("Erro", "Em desenvolvimento")
+
+            elif(item == "Cadastro de Administrador"):
+
+                AbrirCadAdm(content)
+
+            elif(item == "Funcionário"):
+
+                AbrirFuncionario(content)
             
 
     # Iniciar a interface
