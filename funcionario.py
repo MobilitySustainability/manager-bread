@@ -27,25 +27,41 @@ def funcionario(container, funcionarios):
     for widget in container.winfo_children():
         widget.destroy()
     
-    
-    style = ttk.Style()
-    
-    style.configure("Custom.Treeview",
-                    background=cor_fundo,
-                    foreground=cor_texto,
-                    fieldbackground=cor_fundo)
 
+
+
+    ttk.Label(container, text="Nome:", background=cor_fundo, foreground=cor_texto).grid(row=0, column=0, padx=10, pady=5, sticky="w")
+    nome = ttk.Entry(container,background=cor_fundo, width=50)
+    nome.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
     
-    lista_funcionario = ttk.Treeview(container, columns=("Nome", "E-mail", "Salário"), style="Custom.Treeview")
+    ttk.Label(container, text="Email:", background=cor_fundo, foreground=cor_texto).grid(row=1, column=0, padx=10, pady=5, sticky="w")
+    email = ttk.Entry(container,background=cor_fundo, width=50)
+    email.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
+    
+    ttk.Label(container, text="Senha:", background=cor_fundo, foreground=cor_texto).grid(row=2, column=0, padx=10, pady=5, sticky="w")
+    senha = ttk.Entry(container,background=cor_fundo, width=50)
+    senha.grid(row=2, column=1, padx=10, pady=5, sticky="ew")
+    
+    ttk.Label(container, text="Salario:", background=cor_fundo, foreground=cor_texto).grid(row=3, column=0, padx=10, pady=5, sticky="w")
+    salario = ttk.Entry(container,background=cor_fundo, width=50)
+    salario.grid(row=3, column=1, padx=10, pady=5, sticky="ew")
+    
+    
+    colunas = ("Nome", "E-mail", "Salário", "Editar")
+    
+    lista_funcionario = ttk.Treeview(container, columns=colunas, show="headings", height=6)
 
     lista_funcionario.heading("Nome", text="Nome", anchor="w")
     lista_funcionario.heading("E-mail", text="E-mail", anchor="w")
     lista_funcionario.heading("Salário", text="Salário", anchor="w")
+    lista_funcionario.heading("Editar", text="Editar", anchor="w")
 
-    
-    lista_funcionario.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
-    container.grid_rowconfigure(2, weight=1)
+    lista_funcionario.bind("<Motion>", lambda event: lista_funcionario.config(cursor="hand2"))
+    lista_funcionario.bind("<Leave>", lambda event: lista_funcionario.config(cursor=""))
+
+    lista_funcionario.grid(row=4, column=0, columnspan=4, sticky="nsew")
+    # container.grid_rowconfigure(4, weight=1)
     
     for item in funcionarios:
         
-        lista_funcionario.insert("", "end", values=(item["Nome"], item["Email"], item["Salario"]))
+        lista_funcionario.insert("", "end", values=(item["Nome"], item["Email"], item["Salario"], "📝"))

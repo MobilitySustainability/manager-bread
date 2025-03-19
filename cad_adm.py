@@ -96,7 +96,7 @@ def cad_adm(container, permissoes):
 
     lista_cad_adm.grid(row=5, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
 
-    container.grid_rowconfigure(5, weight=1)
+    # container.grid_rowconfigure(5, weight=1)
 
     for i in range(4):
         container.grid_columnconfigure(i, weight=1, uniform="equal")
