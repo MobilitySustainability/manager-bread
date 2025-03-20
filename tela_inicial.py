@@ -138,7 +138,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Funcionário"):
             
-                AbrirFuncionario(content)
+                AbrirFuncionario(content, tenant_id)
 
             elif(item == "Gerenciar Usuário"):
 
@@ -168,7 +168,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Funcionário"):
 
-                AbrirFuncionario(content)
+                AbrirFuncionario(content, tenant_id)
 
             elif(item == "Gerenciar Usuário"):
 
@@ -199,7 +199,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Funcionário"):
 
-                AbrirFuncionario(content)
+                AbrirFuncionario(content, tenant_id)
 
             elif(item == "Gerenciar Usuário"):
 
@@ -229,7 +229,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Funcionário"):
 
-                AbrirFuncionario(content)
+                AbrirFuncionario(content, tenant_id)
 
             elif(item == "Gerenciar Usuário"):
 
@@ -260,7 +260,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Funcionário"):
 
-                AbrirFuncionario(content)
+                AbrirFuncionario(content, tenant_id)
 
             elif(item == "Gerenciar Usuário"):
 
@@ -269,7 +269,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
         elif item == "Funcionário":
             
-            AbrirFuncionario(content)
+            AbrirFuncionario(content, tenant_id)
             
             if(item == "Home"):
                 
@@ -328,7 +328,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Funcionário"):
 
-                AbrirFuncionario(content)
+                AbrirFuncionario(content, tenant_id)
             
 
     # Iniciar a interface

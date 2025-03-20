@@ -410,7 +410,7 @@ def updateCadAdm(nome, email, senha, permissao_id):
     else:
         retorno = "Conexão não disponível"
         return retorno
-    
+
 def deleteCadAdm(email):
     conn = conectar_mysql()
 
@@ -440,7 +440,134 @@ def deleteCadAdm(email):
         retorno = "Conexão não disponível"
         return retorno
 
-def pegar_funcionarios():
+def buscar_donos():
+    
+    conn = conectar_mysql()
+
+    if conn is not None and conn.is_connected():
+        try:
+            cursor = conn.cursor()
+            query = """
+            SELECT 
+            *
+            FROM 
+            Usuario
+            """
+            cursor.execute(query)
+            resultados = cursor.fetchall()
+            cursor.close()
+            conn.close()
+
+            if resultados:
+                permissoes = []
+
+                for resultado in resultados:
+                    produto = {
+                        "id": resultado[0],
+                        "nome": resultado[1],
+                    }
+                    permissoes.append(produto)
+
+                return permissoes
+            
+            else:
+                
+                resultados = "Não encontrado"
+                return resultados
+             
+        except mysql.connector.Error as e:
+            retorno = f"Erro ao executar a consulta: {e}"
+            conn.close()
+            return retorno
+    else:
+        retorno = "Conexão não disponível"
+        conn.close()
+        return retorno
+
+def gerar_tenant_id():
+    return random.randint(100, 999) 
+
+def cadPadaria(nome, dono_id):
+    tenant_id = gerar_tenant_id()  # Gerar tenant_id aleatório
+    conn = conectar_mysql()
+
+    if conn is not None and conn.is_connected():
+        try:
+            cursor = conn.cursor()
+
+            query = """
+            INSERT INTO Padaria (nome, dono_id, tenant_id)
+            VALUES (%s, %s, %s)
+            """
+
+            dados = (nome, dono_id, tenant_id)  # Passando tenant_id gerado aleatoriamente
+
+            cursor.execute(query, dados)
+            conn.commit()  # Confirma a inserção no banco
+
+            cursor.close()
+            conn.close()
+
+            return True  # Sucesso ao inserir
+
+        except mysql.connector.Error as e:
+            conn.close()
+            print(f"Erro ao inserir padaria: {e}")
+            return False  # Falha ao inserir
+
+    else:
+        conn.close()
+        return False  # Conexão não disponível
+
+def atualizar_padaria(nome, novo_dono_id):
+    conn = conectar_mysql()
+
+    if conn is not None and conn.is_connected():
+        try:
+            cursor = conn.cursor()
+
+            # Verificando se a padaria existe no banco
+            query_verificacao = """
+            SELECT id
+            FROM Padaria
+            WHERE nome = %s
+            """
+            cursor.execute(query_verificacao, (nome,))
+            resultado = cursor.fetchone()
+
+            if resultado:  # Se a padaria foi encontrada
+                padaria_id = resultado[0]  # Obter o ID da padaria
+
+                # Query de atualização
+                query_update = """
+                UPDATE Padaria
+                SET dono_id = %s
+                WHERE id = %s
+                """
+
+                cursor.execute(query_update, (novo_dono_id, padaria_id))
+                conn.commit()  # Confirma a atualização no banco
+
+                cursor.close()
+                conn.close()
+
+                return True  # Sucesso ao atualizar
+
+            else:
+                cursor.close()
+                conn.close()
+                return False  # Padaria não encontrada
+
+        except mysql.connector.Error as e:
+            conn.close()
+            print(f"Erro ao atualizar padaria: {e}")
+            return False  # Falha ao atualizar
+
+    else:
+        conn.close()
+        return False  # Conexão não disponível
+
+def pegar_funcionarios(tenant_id):
 
     funcionarios = []
     
@@ -458,8 +585,10 @@ def pegar_funcionarios():
             Usuario
             WHERE
             permissao_id = %s
+            AND
+            tenant_id = %s
             """
-            cursor.execute(query, (3,))
+            cursor.execute(query, (3, tenant_id,))
             resultados = cursor.fetchall()
             
             for linha in resultados:
@@ -490,3 +619,41 @@ def pegar_funcionarios():
         funcionarios = "Conexão não disponível"
         conn.close()
         return funcionarios
+    
+    
+def CadEditarFunc(lista_para_edicao, tenant_id, tipo):
+    
+    conn = conectar_mysql()
+    
+    if(tipo == "Adicionar"):
+        
+        nome  = lista_para_edicao[0]['nome']
+        email = lista_para_edicao[1]['email']
+        senha = lista_para_edicao[2]['senha']
+        
+        if conn is not None and conn.is_connected():
+            try:
+                cursor = conn.cursor()
+
+                query = """
+                INSERT INTO Usuario (nome, email, senha, permissao_id, ativo, tenant_id)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """
+
+                dados = (nome, email, senha, 3 , 1 , tenant_id)
+
+                cursor.execute(query, dados)
+                conn.commit()
+
+                cursor.close()
+                conn.close()
+
+                return True
+
+            except mysql.connector.Error as e:
+                conn.close()
+                return False
+
+        else:
+            conn.close()
+            return False
