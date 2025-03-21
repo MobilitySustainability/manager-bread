@@ -6,7 +6,7 @@ from tkinter import messagebox
 from banco import pegar_produtos
 from banco import confirmar_pagamento
 from carregamento_de_telas import carregamento
-from cores import cor_fundo, cor_texto, cor_borda, cor_botao, cor_sair, cor_hover_botao, cor_hover_sair
+from cores import cor_fundo, cor_texto, cor_borda, cor_botao, cor_hover_botao
 import threading
 
 def AbrirCaixa(container, tipo_usu, nome_usu, tenant_id):
@@ -15,7 +15,7 @@ def AbrirCaixa(container, tipo_usu, nome_usu, tenant_id):
         
         carregamento(container)
         
-        produtos = pegar_produtos()
+        produtos = pegar_produtos(tenant_id)
         
         container.after(0, iniciar_caixa_supermercado, container, tipo_usu, nome_usu, tenant_id, produtos)
         

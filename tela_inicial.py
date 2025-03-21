@@ -8,12 +8,10 @@ from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from caixa import AbrirCaixa
 from cad_adm import AbrirCadAdm
-from estoque import estoque
+from estoque import abrirEstoque
 from funcionario import AbrirFuncionario
-from gerenciar_usu import gerenciar_usu
-from pedidos import pedidos
 from home import home
-from cores import cor_fundo, cor_texto, cor_borda, cor_botao, cor_sair, cor_hover_botao, cor_hover_sair
+from cores import cor_fundo, cor_texto, cor_borda, cor_botao, cor_hover_botao
 
 
 def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
@@ -35,7 +33,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
     navbar = ttk.Frame(root, padding=5)
     navbar.pack(side=tk.TOP, fill=tk.X, anchor="w")
 
-    label_titulo = ttk.Label(navbar, text="MANAGER BREAD", background=cor_fundo, font=("Cinzel", 24), foreground=cor_texto)
+    label_titulo = ttk.Label(navbar, text="MANAGER BREAD", background=cor_fundo, font=("Helvetica", 24), foreground=cor_texto)
     label_titulo.pack(side=tk.LEFT, padx=10, )
 
     # Menu suspenso para o usuário
@@ -57,33 +55,32 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
         # Criando o menu lateral
         menu_items = [
-            ("Home", "fas fa-bell"),
-            ("Caixa", "fas fa-bell"),
-            ("Estoque", "fas fa-bell"),
-            ("Funcionário", "fas fa-bell"),
-            ("Pedidos", "fas fa-bell"),
-            ("Gerenciar Usuário", "fas fa-bell"),
-            ("Cadastro de Administrador", "fas fa-bell"),
+            ("Home 🏠", "fas fa-bell"),
+            ("Caixa 💰", "fas fa-bell"),
+            ("Pedidos 🛒", "fas fa-bell"),
+            ("Estoque 📦", "fas fa-bell"),
+            ("Funcionários 👨‍💼", "fas fa-bell"),
+            ("Cadastro de Administrador 🏛️", "fas fa-bell"),
         ]
 
     elif(tipo_usu == "admin" and usu_ativo == "Ativo"):
 
         # Criando o menu lateral
         menu_items = [
-            ("Home", "fas fa-bell"),
-            ("Caixa", "fas fa-bell"),
-            ("Estoque", "fas fa-bell"),
-            ("Funcionário", "fas fa-bell"),
-            ("Pedidos", "fas fa-bell"),
-            ("Gerenciar Usuário", "fas fa-bell"),
+            ("Home 🏠", "fas fa-bell"),
+            ("Caixa 💰", "fas fa-bell"),
+            ("Pedidos 🛒", "fas fa-bell"),
+            ("Estoque 📦", "fas fa-bell"),
+            ("Funcionários 👨‍💼", "fas fa-bell"),
+            
         ]
 
     elif(tipo_usu == "usuario" and usu_ativo == "Ativo"):
 
         # Criando o menu lateral
         menu_items = [
-            ("Home", "fas fa-bell"),
-            ("Caixa", "fas fa-bell"),
+            ("Home 🏠", "fas fa-bell"),
+            ("Caixa 💰", "fas fa-bell"),
         ]
         
 
@@ -115,221 +112,179 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
         for widget in content.winfo_children():
             widget.destroy()
             
-        if item == "Home":
+        if item == "Home 🏠":
             
             home(content)
             
-            if(item == "Home"):
+            if(item == "Home 🏠"):
                 
                 home(content)
                 
-            elif(item == "Caixa"):
+            elif(item == "Caixa 💰"):
 
                 AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
 
-            elif(item == "Pedidos"):
+            elif(item == "Pedidos 🛒"):
 
                 #pedidos(content)
                 messagebox.showerror("Erro", "Em desenvolvimento")
 
-            elif(item == "Cadastro de Administrador"):
+            elif(item == "Cadastro de Administrador 🏛️"):
 
                 AbrirCadAdm(content)
 
-            elif(item == "Funcionário"):
+            elif(item == "Funcionários 👨‍💼"):
             
                 AbrirFuncionario(content, tenant_id)
-
-            elif(item == "Gerenciar Usuário"):
-
-                #gerenciar_usu(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
         
-        elif item == "Estoque":
-            #estoque(content)
-            messagebox.showerror("Erro", "Em desenvolvimento")
+        elif item == "Estoque 📦":
             
-            if(item == "Home"):
+            abrirEstoque(content, tenant_id)
+            
+            if(item == "Home 🏠"):
                 
                 home(content)
                 
-            elif(item == "Caixa"):
+            elif(item == "Caixa 💰"):
 
                 AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
 
-            elif(item == "Pedidos"):
+            elif(item == "Pedidos 🛒"):
 
                 #pedidos(content)
                 messagebox.showerror("Erro", "Em desenvolvimento")
 
-            elif(item == "Cadastro de Administrador"):
+            elif(item == "Cadastro de Administrador 🏛️"):
 
                 AbrirCadAdm(content)
 
-            elif(item == "Funcionário"):
+            elif(item == "Funcionários 👨‍💼"):
 
                 AbrirFuncionario(content, tenant_id)
 
-            elif(item == "Gerenciar Usuário"):
-
-                #gerenciar_usu(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
-
-        elif item == "Caixa":
+        elif item == "Caixa 💰":
             
             AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
             
-            if(item == "Home"):
+            if(item == "Home 🏠"):
                 
                 home(content)
                 
-            elif(item == "Estoque"):
+            elif(item == "Estoque 📦"):
 
-                #estoque(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
+                abrirEstoque(content, tenant_id)
 
-            elif(item == "Pedidos"):
+            elif(item == "Pedidos 🛒"):
 
                 #pedidos(content)
                 messagebox.showerror("Erro", "Em desenvolvimento")
 
-            elif(item == "Cadastro de Administrador"):
+            elif(item == "Cadastro de Administrador 🏛️"):
 
                 AbrirCadAdm(content)
 
-            elif(item == "Funcionário"):
+            elif(item == "Funcionários 👨‍💼"):
 
                 AbrirFuncionario(content, tenant_id)
 
-            elif(item == "Gerenciar Usuário"):
-
-                #gerenciar_usu(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
-
-        elif item == "Pedidos":
+        elif item == "Pedidos 🛒":
             #pedidos(content)
             messagebox.showerror("Erro", "Em desenvolvimento")
             
-            if(item == "Home"):
+            if(item == "Home 🏠"):
                 
                 home(content)
                 
-            elif(item == "Estoque"):
+            elif(item == "Estoque 📦"):
 
-                #estoque(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
+                abrirEstoque(content, tenant_id)
 
-            elif(item == "Caixa"):
+            elif(item == "Caixa 💰"):
 
                 AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
 
-            elif(item == "Cadastro de Administrador"):
+            elif(item == "Cadastro de Administrador 🏛️"):
 
                 AbrirCadAdm(content)
 
-            elif(item == "Funcionário"):
+            elif(item == "Funcionários 👨‍💼"):
 
                 AbrirFuncionario(content, tenant_id)
 
-            elif(item == "Gerenciar Usuário"):
-
-                #gerenciar_usu(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
-
-        elif item == "Cadastro de Administrador":
+        elif item == "Cadastro de Administrador 🏛️":
             
             AbrirCadAdm(content)
             
-            if(item == "Home"):
+            if(item == "Home 🏠"):
                 
                 home(content)
                 
-            elif(item == "Estoque"):
+            elif(item == "Estoque 📦"):
 
-                #estoque(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
+                abrirEstoque(content, tenant_id)
 
-            elif(item == "Caixa"):
+            elif(item == "Caixa 💰"):
 
                 AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
 
-            elif(item == "Pedidos"):
+            elif(item == "Pedidos 🛒"):
 
                 #pedidos(content)
                 messagebox.showerror("Erro", "Em desenvolvimento")
 
-            elif(item == "Funcionário"):
+            elif(item == "Funcionários 👨‍💼"):
 
                 AbrirFuncionario(content, tenant_id)
 
-            elif(item == "Gerenciar Usuário"):
-
-                #gerenciar_usu(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
-
-        elif item == "Funcionário":
+        elif item == "Funcionários 👨‍💼":
             
             AbrirFuncionario(content, tenant_id)
             
-            if(item == "Home"):
+            if(item == "Home 🏠"):
                 
                 home(content)
                 
-            elif(item == "Estoque"):
+            elif(item == "Estoque 📦"):
 
-                #estoque(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
+                abrirEstoque(content, tenant_id)
 
-            elif(item == "Caixa"):
+            elif(item == "Caixa 💰"):
 
                 AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
 
-            elif(item == "Pedidos"):
+            elif(item == "Pedidos 🛒"):
 
                 #pedidos(content)
                 messagebox.showerror("Erro", "Em desenvolvimento")
 
-            elif(item == "Cadastro de Administrador"):
+            elif(item == "Cadastro de Administrador 🏛️"):
 
                 AbrirCadAdm(content)
-
-            elif(item == "Gerenciar Usuário"):
-
-                #gerenciar_usu(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
-
-        elif item == "Gerenciar Usuário":
             
-            #gerenciar_usu(content)
-            messagebox.showerror("Erro", "Em desenvolvimento")
-            
-            
-            if(item == "Home"):
+            if(item == "Home 🏠"):
                 
                 home(content)
                 
-            elif(item == "Estoque"):
+            elif(item == "Estoque 📦"):
 
-                #estoque(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
+                abrirEstoque(content, tenant_id)
 
-            elif(item == "Caixa"):
+            elif(item == "Caixa 💰"):
 
                 AbrirCaixa(content, tipo_usu, nome_usu, tenant_id)
 
-            elif(item == "Pedidos"):
+            elif(item == "Pedidos 🛒"):
 
                 #pedidos(content)
                 messagebox.showerror("Erro", "Em desenvolvimento")
 
-            elif(item == "Cadastro de Administrador"):
+            elif(item == "Cadastro de Administrador 🏛️"):
 
                 AbrirCadAdm(content)
 
-            elif(item == "Funcionário"):
+            elif(item == "Funcionários 👨‍💼"):
 
                 AbrirFuncionario(content, tenant_id)
             
-
     # Iniciar a interface
     root.mainloop()

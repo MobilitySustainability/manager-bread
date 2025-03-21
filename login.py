@@ -4,7 +4,7 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 from banco import verificar_login_bd
 from tela_inicial import criar_menu_principal
-from cores import cor_fundo, cor_texto, cor_borda, cor_botao, cor_sair, cor_hover_botao, cor_hover_sair
+from cores import cor_fundo, cor_texto, cor_borda, cor_botao, cor_hover_botao
 
 def entrar():
     usuario = entry_usuario.get()
@@ -14,31 +14,55 @@ def entrar():
         messagebox.showerror("Erro", "Preencher os campos")
         return
     
-    carregando_label = tk.Label(frame, text="Carregando...", font=("Arial", 12), fg=cor_texto, bg=cor_fundo)
-    carregando_label.pack(pady=6)
-    login_window.update()
+    # Esconde todos os widgets (exceto o fundo)
+    label_logo.pack_forget()
+    label_usuario.pack_forget()
+    entry_usuario.pack_forget()
+    label_senha.pack_forget()
+    entry_senha.pack_forget()
+    btn_entrar.pack_forget()
+
+    # Exibe o texto "Carregando..."
+    label_carregando = tk.Label(frame, text="Carregando...", font=("Arial", 14), fg="black", bg=cor_fundo)
+    label_carregando.pack(pady=20)
+
+   
+    login_window.update_idletasks()
+
     
     retorno_banco = verificar_login_bd(usuario, senha)
 
-    carregando_label.pack_forget()
     
+    label_carregando.destroy()
+
+   
     if retorno_banco:
-        
         tipo_usu, usu_ativo, nome_usu, tenant_id = retorno_banco
         
         if usu_ativo == "Ativo":
             login_window.destroy()
             criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id)
         else:
-            
             messagebox.showerror("Erro", "Usuário não está ativo")
+            
+            label_logo.pack(pady=20)
+            label_usuario.pack()
+            entry_usuario.pack(pady=10)
+            label_senha.pack()
+            entry_senha.pack(pady=10)
+            btn_entrar.pack(pady=20, padx=20, fill="x")
     else:
-        
         messagebox.showerror("Erro", "Usuário ou senha inválidos")
         
+        label_logo.pack(pady=20)
+        label_usuario.pack()
+        entry_usuario.pack(pady=10)
+        label_senha.pack()
+        entry_senha.pack(pady=10)
+        btn_entrar.pack(pady=20, padx=20, fill="x")
 
 def tela_login():
-    global login_window, entry_usuario, entry_senha, frame
+    global login_window, entry_usuario, entry_senha, frame, label_logo, label_usuario, label_senha, btn_entrar
     
     login_window = tk.Tk()
     login_window.title("Login")
@@ -96,23 +120,11 @@ def tela_login():
     def on_leave_entrar(e):
         btn_entrar.config(bg=cor_botao, cursor="arrow")  # Restaura a cor original e o cursor para o padrão
 
-    def on_enter_sair(e):
-        btn_sair.config(bg=cor_hover_sair, cursor="hand2")  # Muda a cor e o cursor no botão "Sair"
-
-    def on_leave_sair(e):
-        btn_sair.config(bg=cor_sair, cursor="arrow")  # Restaura a cor original e o cursor para o padrão
-
     # Botão Entrar
     btn_entrar = tk.Button(frame, text="Entrar", font=("Helvetica", 16), bg=cor_botao, fg="white", command=entrar)
     btn_entrar.pack(pady=20, padx=20, fill="x")
     btn_entrar.bind("<Enter>", on_enter_entrar)
     btn_entrar.bind("<Leave>", on_leave_entrar)
-
-    # Botão para sair da tela cheia
-    btn_sair = tk.Button(login_window, text="Sair", font=("Helvetica", 12, "bold"), bg=cor_sair, fg="white", command=login_window.destroy)
-    btn_sair.place(relx=0.95, rely=0.05, anchor="ne")
-    btn_sair.bind("<Enter>", on_enter_sair)
-    btn_sair.bind("<Leave>", on_leave_sair)
     
     login_window.mainloop()
 

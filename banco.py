@@ -59,8 +59,9 @@ def verificar_login_bd(usuario, senha):
         conn.close()
         return retorno
 
-def pegar_produtos():
+def pegar_produtos(tenant_id):
 
+    
     conn = conectar_mysql()
 
     if conn is not None and conn.is_connected():
@@ -77,8 +78,11 @@ def pegar_produtos():
             valor
             FROM 
             Produto
+            WHERE
+            tenant_id = %s
             """
-            cursor.execute(query)
+            
+            cursor.execute(query, (tenant_id,))
             resultados = cursor.fetchall()
             cursor.close()
             conn.close()
@@ -488,27 +492,39 @@ def gerar_tenant_id():
     return random.randint(100, 999) 
 
 def cadPadaria(nome, dono_id):
-    tenant_id = gerar_tenant_id()  # Gerar tenant_id aleatório
+    # Conectar ao banco de dados
     conn = conectar_mysql()
 
     if conn is not None and conn.is_connected():
         try:
             cursor = conn.cursor()
 
-            query = """
-            INSERT INTO Padaria (nome, dono_id, tenant_id)
-            VALUES (%s, %s, %s)
-            """
+            # Buscar o tenant_id do dono
+            query_tenant = "SELECT tenant_id FROM Usuario WHERE id = %s"
+            cursor.execute(query_tenant, (dono_id,))
+            resultado = cursor.fetchone()
 
-            dados = (nome, dono_id, tenant_id)  # Passando tenant_id gerado aleatoriamente
+            if resultado:
+                tenant_id = resultado[0]  # Obtém o tenant_id do dono
 
-            cursor.execute(query, dados)
-            conn.commit()  # Confirma a inserção no banco
+                # Inserir a padaria com o tenant_id encontrado
+                query_padaria = """
+                INSERT INTO Padaria (nome, dono_id, tenant_id)
+                VALUES (%s, %s, %s)
+                """
+                dados_padaria = (nome, dono_id, tenant_id)
+                cursor.execute(query_padaria, dados_padaria)
+                conn.commit()  # Confirma a inserção no banco
 
-            cursor.close()
-            conn.close()
+                cursor.close()
+                conn.close()
 
-            return True  # Sucesso ao inserir
+                return True  # Sucesso ao inserir
+            else:
+                cursor.close()
+                conn.close()
+                print("Dono não encontrado.")
+                return False  # Falha ao encontrar o dono
 
         except mysql.connector.Error as e:
             conn.close()
@@ -567,6 +583,100 @@ def atualizar_padaria(nome, novo_dono_id):
         conn.close()
         return False  # Conexão não disponível
 
+def listarUsuarios():
+    conn = conectar_mysql()
+
+    if conn is not None and conn.is_connected():
+        try:
+            cursor = conn.cursor(dictionary=True)  # Retorna os dados como dicionário
+
+            # Atualizando a consulta para pegar também o nome da padaria
+            query = """
+                SELECT u.nome, u.email, p.nome AS nome_padaria
+                FROM Usuario u
+                LEFT JOIN Padaria p ON u.id = p.dono_id
+            """
+            cursor.execute(query)
+            usuarios = cursor.fetchall()  # Pegando todos os usuários
+
+            # Ajustar para "NAO TEM PADARIA" caso o administrador não tenha padaria
+            for usuario in usuarios:
+                if usuario['nome_padaria'] is None:
+                    usuario['nome_padaria'] = 'NAO TEM PADARIA'
+
+            cursor.close()
+            conn.close()
+
+            return usuarios  # Retorna a lista de usuários com o nome da padaria
+
+        except mysql.connector.Error as e:
+            print(f"Erro na listagem de usuários: {e}")
+            return []  # Retorna uma lista vazia em caso de erro
+
+    return []  # Retorna uma lista vazia se a conexão falhar
+
+def obter_dono_id(email):
+    conn = conectar_mysql()
+
+    if conn is not None and conn.is_connected():
+        try:
+            cursor = conn.cursor()
+            query = "SELECT id FROM Usuario WHERE email = %s"
+            cursor.execute(query, (email,))
+            resultado = cursor.fetchone()
+
+            if resultado:
+                return resultado[0]  # Retorna o id do dono
+            else:
+                return None  # Não encontrou o dono
+
+        except mysql.connector.Error as e:
+            print(f"Erro ao buscar dono_id: {e}")
+            return None
+        finally:
+            cursor.close()
+            conn.close()
+    else:
+        return None
+   
+def deletePadaria(nome_padaria, email):
+    conn = conectar_mysql()
+
+    if conn is not None and conn.is_connected():
+        try:
+            cursor = conn.cursor(dictionary=True)  # Use dictionary=True para retornar resultados como dicionário
+
+            # Primeiro, buscar o ID da padaria associada ao nome da padaria e ao email do dono
+            query = """
+                SELECT p.id
+                FROM Padaria p
+                JOIN Usuario u ON p.dono_id = u.id
+                WHERE p.nome = %s AND u.email = %s
+            """
+            cursor.execute(query, (nome_padaria, email))
+            padaria = cursor.fetchone()  # Agora 'padaria' será um dicionário
+
+            if padaria:
+                padaria_id = padaria['id']  # Acessando o valor como um dicionário
+
+                # Excluir a padaria usando o ID encontrado
+                delete_query = "DELETE FROM Padaria WHERE id = %s"
+                cursor.execute(delete_query, (padaria_id,))
+                conn.commit()
+
+                cursor.close()
+                conn.close()
+
+                return True  # Se a padaria foi removida com sucesso
+            else:
+                return False  # Se não encontrar a padaria correspondente
+
+        except mysql.connector.Error as e:
+            print(f"Erro ao excluir padaria: {e}")
+            return False  # Se ocorrer algum erro
+
+    return False  # Retorna False se a conexão falhar
+
 def pegar_funcionarios(tenant_id):
 
     funcionarios = []
@@ -580,7 +690,7 @@ def pegar_funcionarios(tenant_id):
             SELECT 
             nome,
             email,
-            ativo AS salario
+            id
             FROM 
             Usuario
             WHERE
@@ -596,7 +706,7 @@ def pegar_funcionarios(tenant_id):
                 funcionario = {
                     "Nome": linha[0],
                     "Email": linha[1],
-                    "Salario": float(linha[2]),
+                    "id": int(linha[2]),
                 }
                 funcionarios.append(funcionario)
                 
@@ -657,3 +767,254 @@ def CadEditarFunc(lista_para_edicao, tenant_id, tipo):
         else:
             conn.close()
             return False
+        
+    elif(tipo == "Editar"):
+        
+        id       = lista_para_edicao[0]['id']
+        nome     = lista_para_edicao[1]['nome']
+        email    = lista_para_edicao[2]['email']
+        ativo_sn = lista_para_edicao[3]['ativo_sn']
+        
+        if(ativo_sn == "Sim"):
+            
+            if conn is not None and conn.is_connected():
+                try:
+                    cursor = conn.cursor()
+
+                    query = """
+                    UPDATE Usuario 
+                    SET nome = %s, email = %s, ativo = %s
+                    WHERE
+                    tenant_id = %s
+                    AND
+                    id = %s
+                    """
+
+                    dados = (nome, email, ativo_sn, tenant_id, id, )
+
+                    cursor.execute(query, dados)
+                    conn.commit()
+
+                    cursor.close()
+                    conn.close()
+
+                    return True
+
+                except mysql.connector.Error as e:
+                    conn.close()
+                    return False
+
+            else:
+                conn.close()
+                return False
+            
+        elif(ativo_sn == "Não"):
+            
+            if conn is not None and conn.is_connected():
+                try:
+                    cursor = conn.cursor()
+
+                    query = """
+                    DELETE FROM Usuario WHERE id = %s
+                    """
+
+                    dados = (id, )
+
+                    cursor.execute(query, dados)
+                    conn.commit()
+
+                    cursor.close()
+                    conn.close()
+
+                    return True
+
+                except mysql.connector.Error as e:
+                    conn.close()
+                    return False
+
+            else:
+                conn.close()
+                return False
+            
+
+def estoque_listar_itens(tenant_id):
+
+    listaDeItens = []
+    
+    conn = conectar_mysql()
+
+    if conn is not None and conn.is_connected():
+        try:
+            cursor = conn.cursor()
+            query = """
+            SELECT 
+            id,
+            nome,
+            quant,
+            valor
+            FROM 
+            Produto
+            WHERE
+            tenant_id = %s
+            """
+            cursor.execute(query, (tenant_id,))
+            resultados = cursor.fetchall()
+            
+            for linha in resultados:
+                
+                valoresAchados = {
+                    "id": linha[0],
+                    "nome": linha[1],
+                    "quant": int(linha[2]),
+                    "valor": float(linha[2]),
+                }
+                listaDeItens.append(valoresAchados)
+                
+            cursor.close()
+            conn.close()
+
+            if (listaDeItens != ""):
+
+                return listaDeItens
+            
+            else:
+                listaDeItens = ""
+                return listaDeItens
+             
+        except mysql.connector.Error as e:
+            listaDeItens = f"Erro ao executar a consulta: {e}"
+            conn.close()
+            return listaDeItens
+    else:
+        listaDeItens = "Conexão não disponível"
+        conn.close()
+        return listaDeItens
+
+def estoqueEditarProduto(lista_para_edicao, tenant_id, tipo):
+    
+    conn = conectar_mysql()
+    
+    if(tipo == "Adicionar"):
+        
+        nome         = lista_para_edicao[0]['nome']
+        quantidade   = lista_para_edicao[1]['quantidade']
+        preco        = float(lista_para_edicao[2]['preco'])
+        tipo_produto = lista_para_edicao[3]['tipo_produto']
+        
+        if(tipo_produto == "Pães"):
+            
+            tipo_produto = "1"
+            
+        elif(tipo_produto == "Bolos"):
+            
+            tipo_produto = "2"
+            
+        elif(tipo_produto == "Salgados"):
+            
+            tipo_produto = "3"
+        
+        elif(tipo_produto == "Bebidas"):
+            
+            tipo_produto = "4"
+            
+        tipo_produto = int(tipo_produto)
+        tenant_id    = int(tenant_id)
+        quantidade   = int(quantidade)
+        
+        if conn is not None and conn.is_connected():
+            try:
+                cursor = conn.cursor()
+
+                query = """
+                INSERT INTO Produto (nome, tipo_id, quant, valor, tenant_id)
+                VALUES (%s, %s, %s, %s, %s)
+                """
+
+                dados = (nome, tipo_produto, quantidade, preco, tenant_id)
+
+                cursor.execute(query, dados,)
+                conn.commit()
+
+                cursor.close()
+                conn.close()
+
+                return True
+
+            except mysql.connector.Error as e:
+                
+                conn.close()
+                return False
+
+        else:
+            conn.close()
+            return False
+        
+    elif(tipo == "Editar"):
+        
+        id          = lista_para_edicao[0]['id']
+        nome        = lista_para_edicao[1]['nome']
+        quantidade  = lista_para_edicao[2]['quantidade']
+        preco       = float(lista_para_edicao[3]['preco'])
+        ativo_sn    = lista_para_edicao[4]['ativo_sn']
+        
+        if(ativo_sn == "Sim"):
+            
+            if conn is not None and conn.is_connected():
+                try:
+                    cursor = conn.cursor()
+
+                    query = """
+                    UPDATE Produto 
+                    SET nome = %s, quant = %s, valor = %s
+                    WHERE
+                    tenant_id = %s
+                    AND
+                    id = %s
+                    """
+
+                    dados = (nome, quantidade, preco, tenant_id, id, )
+
+                    cursor.execute(query, dados)
+                    conn.commit()
+
+                    cursor.close()
+                    conn.close()
+
+                    return True
+
+                except mysql.connector.Error as e:
+                    conn.close()
+                    return False
+
+            else:
+                conn.close()
+                return False
+            
+        elif(ativo_sn == "Não"):
+            
+            if conn is not None and conn.is_connected():
+                try:
+                    cursor = conn.cursor()
+
+                    query = """
+                    DELETE FROM Produto WHERE id = %s
+                    """
+
+                    dados = (id, )
+
+                    cursor.execute(query, dados)
+                    conn.commit()
+
+                    cursor.close()
+                    conn.close()
+
+                    return True
+
+                except mysql.connector.Error as e:
+                    conn.close()
+                    return False
+
+            else:
+                conn.close()
+                return False
+            

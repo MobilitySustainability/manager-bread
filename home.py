@@ -28,3 +28,9 @@ def home(content):
                               foreground=cor_texto, 
                               justify="center")
     descricao_label2.grid(row=2, column=5, pady=10, padx=20)  
+    
+    
+    content.grid_columnconfigure(5, weight=0)
+    content.grid_rowconfigure(0, weight=0)
+    content.grid_rowconfigure(1, weight=0)
+    content.grid_rowconfigure(2, weight=0)
