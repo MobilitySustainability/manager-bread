@@ -11,6 +11,7 @@ from cad_adm import AbrirCadAdm
 from estoque import abrirEstoque
 from funcionario import AbrirFuncionario
 from home import home
+from pedidos import AbrirPedidos
 from cores import cor_fundo, cor_texto, cor_borda, cor_botao, cor_hover_botao
 
 
@@ -126,8 +127,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Pedidos 🛒"):
 
-                #pedidos(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
+                AbrirPedidos(content, tenant_id)
 
             elif(item == "Cadastro de Administrador 🏛️"):
 
@@ -151,8 +151,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Pedidos 🛒"):
 
-                #pedidos(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
+                AbrirPedidos(content, tenant_id)
 
             elif(item == "Cadastro de Administrador 🏛️"):
 
@@ -176,8 +175,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Pedidos 🛒"):
 
-                #pedidos(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
+                AbrirPedidos(content, tenant_id)
 
             elif(item == "Cadastro de Administrador 🏛️"):
 
@@ -188,8 +186,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
                 AbrirFuncionario(content, tenant_id)
 
         elif item == "Pedidos 🛒":
-            #pedidos(content)
-            messagebox.showerror("Erro", "Em desenvolvimento")
+            AbrirPedidos(content, tenant_id)
             
             if(item == "Home 🏠"):
                 
@@ -229,8 +226,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Pedidos 🛒"):
 
-                #pedidos(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
+                AbrirPedidos(content, tenant_id)
 
             elif(item == "Funcionários 👨‍💼"):
 
@@ -254,8 +250,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Pedidos 🛒"):
 
-                #pedidos(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
+                AbrirPedidos(content, tenant_id)
 
             elif(item == "Cadastro de Administrador 🏛️"):
 
@@ -275,8 +270,7 @@ def criar_menu_principal(tipo_usu, usu_ativo, nome_usu, tenant_id):
 
             elif(item == "Pedidos 🛒"):
 
-                #pedidos(content)
-                messagebox.showerror("Erro", "Em desenvolvimento")
+                AbrirPedidos(content, tenant_id)
 
             elif(item == "Cadastro de Administrador 🏛️"):
 

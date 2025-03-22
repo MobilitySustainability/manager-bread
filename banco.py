@@ -60,7 +60,6 @@ def verificar_login_bd(usuario, senha):
         return retorno
 
 def pegar_produtos(tenant_id):
-
     
     conn = conectar_mysql()
 
@@ -1018,3 +1017,109 @@ def estoqueEditarProduto(lista_para_edicao, tenant_id, tipo):
                 conn.close()
                 return False
             
+def pegar_pedidos(tenant_id):
+
+    pedidos = []
+    
+    conn = conectar_mysql()
+
+    if conn is not None and conn.is_connected():
+        try:
+            cursor = conn.cursor()
+            query = """
+            SELECT 
+            id,
+            cliente,
+            valor
+            FROM
+            Pedido
+            WHERE
+            tenant_id = %s
+            """
+            cursor.execute(query, (tenant_id,))
+            resultados = cursor.fetchall()
+            
+            for linha in resultados:
+                
+                pediddo = {
+                    "id": linha[0],
+                    "cliente": linha[1],
+                    "valor": linha[2],
+                }
+                pedidos.append(pediddo)
+                
+            cursor.close()
+            conn.close()
+
+            if (pedidos != ""):
+
+                return pedidos
+            
+            else:
+                pedidos = ""
+                return pedidos
+             
+        except mysql.connector.Error as e:
+            pedidos = f"Erro ao executar a consulta: {e}"
+            conn.close()
+            return pedidos
+    else:
+        pedidos = "Conexão não disponível"
+        conn.close()
+        return pedidos
+   
+def pegar_pedidos_produto(id_pedido):
+
+    pedidos = []
+    
+    conn = conectar_mysql()
+
+    if conn is not None and conn.is_connected():
+        try:
+            cursor = conn.cursor()
+            query = """
+            SELECT
+            A.valor,
+            B.nome,
+            A.quantidade
+            FROM 
+            PedidoProduto AS A
+            JOIN
+            Produto AS B
+            ON
+            A.produto_id = B.id
+            WHERE
+            A.pedido_id = %s
+            """
+            cursor.execute(query, (id_pedido,))
+            resultados = cursor.fetchall()
+            
+            for linha in resultados:
+                
+                pediddo = {
+                    "nome_produto": linha[1],
+                    "valor_doproduto": linha[0],
+                    "quantidade_produto": linha[2],
+                }
+                pedidos.append(pediddo)
+                
+            cursor.close()
+            conn.close()
+
+            if (pedidos != ""):
+
+                return pedidos
+            
+            else:
+                pedidos = ""
+                return pedidos
+             
+        except mysql.connector.Error as e:
+            pedidos = f"Erro ao executar a consulta: {e}"
+            conn.close()
+            return pedidos
+    else:
+        pedidos = "Conexão não disponível"
+        conn.close()
+        return pedidos
+   

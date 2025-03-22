@@ -82,7 +82,7 @@ def funcionario(container, funcionarios, tenant_id):
     senha = ttk.Entry(container, width=50)
     senha.grid(row=3, column=1, padx=10, pady=5, sticky="ew")
     
-    btn_adicionar = ttk.Button(container, text="Adicionar produto", command=adicionar_funcionario)
+    btn_adicionar = ttk.Button(container, text="Adicionar funcionario", command=adicionar_funcionario)
     btn_adicionar.grid(row=4, column=1, padx=10, pady=10, sticky="ew")
     
     

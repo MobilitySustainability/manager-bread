@@ -118,15 +118,14 @@ def iniciar_caixa_supermercado(container, tipo_usu, nome_usu, tenant_id, produto
     btn_adicionar.grid(row=0, column=1, sticky="ew")
     
     style = ttk.Style()
-    style.configure("Treeview", background=cor_fundo, foreground=cor_texto, fieldbackground=cor_fundo)
-    style.configure("Treeview.Heading", background=cor_fundo, foreground=cor_texto)
+    style.configure("Treeview", foreground=cor_texto, fieldbackground=cor_fundo)
+    style.configure("Treeview.Heading", foreground=cor_texto)
 
     lista_carrinho = ttk.Treeview(container, columns=("Produto", "Preço", "Remover"), show="headings", style="Treeview", height=6)
     lista_carrinho.heading("Produto", text="Produto", anchor="w")
     lista_carrinho.heading("Preço", text="Preço", anchor="w")
     lista_carrinho.heading("Remover", text="Remover", anchor="w")
     lista_carrinho.grid(row=2, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
-    container.grid_rowconfigure(2, weight=1)
 
     total_label = ttk.Label(container, text="Total: R$ 0.00", background=cor_fundo, foreground=cor_texto, font=("Arial", 14))
     total_label.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="ew")

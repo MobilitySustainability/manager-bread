@@ -4,10 +4,20 @@ from tkinter import ttk
 from tkinter import messagebox
 from cores import cor_fundo, cor_texto
 
+def ajustar_tamanho_fonte(event, content, labels):
+    largura_tela = event.width
+    altura_tela = event.height
+    
+    nova_tamanho_fonte = int(largura_tela / 57)
+    
+    
+    nova_tamanho_fonte = max(12, min(nova_tamanho_fonte, 36))
+    
+    for label in labels:
+        label.config(font=("Helvetica", nova_tamanho_fonte, "bold"))
 
 def home(content):
     
-    # Estilo para o conteúdo
     content_label = ttk.Label(content, text="\n Bem-vindo ao Manager Bread – Seu Gerenciador de Padarias!", 
                               font=("Helvetica", 24, "bold"), 
                               background=cor_fundo, 
@@ -28,7 +38,12 @@ def home(content):
                               foreground=cor_texto, 
                               justify="center")
     descricao_label2.grid(row=2, column=5, pady=10, padx=20)  
+
     
+    labels = [content_label, descricao_label1, descricao_label2]
+
+   
+    content.bind("<Configure>", lambda event, content=content, labels=labels: ajustar_tamanho_fonte(event, content, labels))
     
     content.grid_columnconfigure(5, weight=0)
     content.grid_rowconfigure(0, weight=0)
