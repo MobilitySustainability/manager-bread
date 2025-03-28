@@ -60,7 +60,6 @@ def verificar_login_bd(usuario, senha):
         return retorno
 
 def pegar_produtos(tenant_id):
-
     
     conn = conectar_mysql()
 
@@ -71,10 +70,7 @@ def pegar_produtos(tenant_id):
             SELECT 
             id,
             nome,
-            CASE
-                WHEN quant <= 0 THEN 'Sem estoque'
-                ELSE 'Com estoque'
-            END AS estoque,
+            quant,
             valor
             FROM 
             Produto
@@ -95,7 +91,7 @@ def pegar_produtos(tenant_id):
                         "codigo": resultado[0],
                         "nome": resultado[1],
                         "preco": float(resultado[3]),
-                        "Tem estoque": resultado[2],
+                        "qtd": resultado[2],
                     }
                     produtos.append(produto)
 
@@ -170,60 +166,54 @@ def confirmar_pagamento(total, carrinho, nome_usu, tenant_id):
             conn = conectar_mysql()
 
             produto_id = produtos_carrinho["codigo"]
+            
 
             produto_id = int(produto_id)
 
             valor_produtos_carrinho = produtos_carrinho["preco"]
 
             valor_produtos_carrinho = float(valor_produtos_carrinho)
+            
+            quantidade_pedido = int(produtos_carrinho["qtd"])
 
             cursor = conn.cursor()
+            cursor.execute("INSERT INTO PedidoProduto (pedido_id, produto_id, quantidade, valor) VALUES (%s, %s, %s, %s)", (Pedido_id, produto_id, quantidade_pedido, valor_produtos_carrinho))
+            conn.commit()
+            cursor.close()
+            
+            cursor = conn.cursor()
+            
             query = """
-                    SELECT 
-                        PedidoProduto.quantidade,
-                        PedidoProduto.valor
-                    FROM
-                        PedidoProduto
-                    WHERE
-                        PedidoProduto.pedido_id = %s
-                    AND
-                        PedidoProduto.produto_id = %s
-                    """
-
-            cursor.execute(query, (Pedido_id, produto_id))
+                SELECT 
+                    quant
+                FROM
+                    Produto
+                WHERE
+                    id = %s
+                """
+                
+            cursor.execute(query, (produto_id,))
             resultado = cursor.fetchone()
             cursor.close()
             
-            if resultado:
+            quantidade_tab = resultado[0]
+            quantidade_tab = int(quantidade_tab)
+            
+            qtd = quantidade_tab - quantidade_pedido
+            
+            cursor = conn.cursor()
+            query = """
+                UPDATE 
+                    Produto
+                SET
+                    quant = %s
+                WHERE
+                    id = %s
+                """
                 
-                quantidade_pedido = resultado[0]
-
-                quantidade_pedido = int(quantidade_pedido)
-
-                quantidade_pedido = quantidade_pedido + 1
-
-                valor_pedido = resultado[1]
-
-                valor_pedido = float(valor_pedido)
-
-                valor_pedido = valor_pedido + valor_produtos_carrinho
-
-
-                cursor = conn.cursor()
-                cursor.execute("UPDATE PedidoProduto SET quantidade = %s, valor = %s WHERE pedido_id = %s AND produto_id = %s", (quantidade_pedido, valor_pedido, Pedido_id, produto_id))
-                conn.commit()
-                cursor.close()
-
-
-            else:
-
-                quantidade_pedido = 1
-
-                cursor = conn.cursor()
-                cursor.execute("INSERT INTO PedidoProduto (pedido_id, produto_id, quantidade, valor) VALUES (%s, %s, %s, %s)", (Pedido_id, produto_id, quantidade_pedido, valor_produtos_carrinho))
-                conn.commit()
-                cursor.close()
-
+            cursor.execute(query, (qtd, produto_id))
+            conn.commit()  # Confirma a operação no banco de dados
+            cursor.close()
             conn.close()
 
     retorno_bd = "Feito"
@@ -250,21 +240,6 @@ def inserir_usuario_bd(usuario, senha, ativo, nome):
         conn.close()
         return retorno
 
-def excluir():
-
-    conn = conectar_mysql()
-
-    try:
-        cursor = conn.cursor()
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")  # Desativa restrições
-        cursor.execute("TRUNCATE TABLE Pedido")  
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")  # Reativa restrições
-        conn.commit()
-    except Exception as e:
-        print(f"Erro ao truncar a tabela Pedido: {e}")
-        conn.rollback()
-    finally:
-        cursor.close()
 
 def permissaoUsu():
 
@@ -352,10 +327,32 @@ def cadAdm(nome, email, senha, permissao_id):
         conn.close()
         return False  # Conexão não disponível, retorna False
 
-def insertCadAdm(nome, email, senha, permissao_id):
+def insertCadAdm(nome, email, senha, nome_padaria, tipo):
+    
     conn = conectar_mysql()
+    tenant_id = random.randint(100, 999) 
+    
+    if(tipo == "Padaria"):
+        
+        try:
+            cursor = conn.cursor()
 
-    if conn is not None and conn.is_connected():
+            query = """
+            INSERT INTO Padaria (nome, dono_id, tenant_id)
+            VALUES (%s, %s, %s)
+            """
+
+            dados = (nome_padaria, 1, tenant_id)  # Ativo é 1 e tenant_id é 101
+
+            cursor.execute(query, dados)
+            conn.commit()  # Confirma a operação no banco de dados
+
+            cursor.close()
+
+        except mysql.connector.Error as e:
+            
+            conn.close()
+            
         try:
             cursor = conn.cursor()
 
@@ -364,23 +361,24 @@ def insertCadAdm(nome, email, senha, permissao_id):
             VALUES (%s, %s, %s, %s, %s, %s)
             """
 
-            dados = (nome, email, senha, permissao_id, 1, 101)  # Ativo é 1 e tenant_id é 101
+            dados = (nome, email, senha, 2, 1, tenant_id)
 
             cursor.execute(query, dados)
             conn.commit()  # Confirma a operação no banco de dados
 
             cursor.close()
-            conn.close()
-
-            return True  # Sucesso
+            
+            
+            return "Cadastro realizado com sucesso"
 
         except mysql.connector.Error as e:
+            retorno = f"Erro ao executar a consulta: {e}"
             conn.close()
-            return False  # Falha ao inserir
-
-    else:
-        conn.close()
-        return False  # Conexão não disponível
+            
+            return "erro"
+        
+    conn.close()
+            
 
 def updateCadAdm(nome, email, senha, permissao_id):
     conn = conectar_mysql()
@@ -488,8 +486,6 @@ def buscar_donos():
         conn.close()
         return retorno
 
-def gerar_tenant_id():
-    return random.randint(100, 999) 
 
 def cadPadaria(nome, dono_id):
     # Conectar ao banco de dados
@@ -523,12 +519,12 @@ def cadPadaria(nome, dono_id):
             else:
                 cursor.close()
                 conn.close()
-                print("Dono não encontrado.")
+                
                 return False  # Falha ao encontrar o dono
 
         except mysql.connector.Error as e:
             conn.close()
-            print(f"Erro ao inserir padaria: {e}")
+            
             return False  # Falha ao inserir
 
     else:
@@ -576,14 +572,14 @@ def atualizar_padaria(nome, novo_dono_id):
 
         except mysql.connector.Error as e:
             conn.close()
-            print(f"Erro ao atualizar padaria: {e}")
+            
             return False  # Falha ao atualizar
 
     else:
         conn.close()
         return False  # Conexão não disponível
 
-def listarUsuarios():
+def listarUsuarios(tenant_id):
     conn = conectar_mysql()
 
     if conn is not None and conn.is_connected():
@@ -594,7 +590,9 @@ def listarUsuarios():
             query = """
                 SELECT u.nome, u.email, p.nome AS nome_padaria
                 FROM Usuario u
-                LEFT JOIN Padaria p ON u.id = p.dono_id
+                LEFT JOIN Padaria p ON u.tenant_id = p.tenant_id
+                WHERE
+                  u.permissao_id = 1
             """
             cursor.execute(query)
             usuarios = cursor.fetchall()  # Pegando todos os usuários
@@ -610,7 +608,7 @@ def listarUsuarios():
             return usuarios  # Retorna a lista de usuários com o nome da padaria
 
         except mysql.connector.Error as e:
-            print(f"Erro na listagem de usuários: {e}")
+            
             return []  # Retorna uma lista vazia em caso de erro
 
     return []  # Retorna uma lista vazia se a conexão falhar
@@ -631,7 +629,7 @@ def obter_dono_id(email):
                 return None  # Não encontrou o dono
 
         except mysql.connector.Error as e:
-            print(f"Erro ao buscar dono_id: {e}")
+            
             return None
         finally:
             cursor.close()
@@ -640,31 +638,42 @@ def obter_dono_id(email):
         return None
    
 def deletePadaria(nome_padaria, email):
+    
     conn = conectar_mysql()
-
+    
+    
     if conn is not None and conn.is_connected():
+        
         try:
-            cursor = conn.cursor(dictionary=True)  # Use dictionary=True para retornar resultados como dicionário
-
             # Primeiro, buscar o ID da padaria associada ao nome da padaria e ao email do dono
+            cursor = conn.cursor()
             query = """
-                SELECT p.id
+                SELECT p.tenant_id
                 FROM Padaria p
-                JOIN Usuario u ON p.dono_id = u.id
+                JOIN Usuario u ON p.tenant_id = u.tenant_id
                 WHERE p.nome = %s AND u.email = %s
             """
             cursor.execute(query, (nome_padaria, email))
             padaria = cursor.fetchone()  # Agora 'padaria' será um dicionário
-
+            
             if padaria:
-                padaria_id = padaria['id']  # Acessando o valor como um dicionário
-
+                
+                padaria_id = padaria[0]
+                padaria_id = int(padaria_id)
+                
                 # Excluir a padaria usando o ID encontrado
-                delete_query = "DELETE FROM Padaria WHERE id = %s"
+                cursor = conn.cursor()
+                delete_query = "DELETE FROM Usuario WHERE tenant_id = %s"
                 cursor.execute(delete_query, (padaria_id,))
                 conn.commit()
-
                 cursor.close()
+                
+                cursor = conn.cursor()
+                delete_query = "DELETE FROM Padaria WHERE tenant_id = %s"
+                cursor.execute(delete_query, (padaria_id,))
+                conn.commit()
+                cursor.close()
+                
                 conn.close()
 
                 return True  # Se a padaria foi removida com sucesso
@@ -672,10 +681,9 @@ def deletePadaria(nome_padaria, email):
                 return False  # Se não encontrar a padaria correspondente
 
         except mysql.connector.Error as e:
-            print(f"Erro ao excluir padaria: {e}")
+            
             return False  # Se ocorrer algum erro
-
-    return False  # Retorna False se a conexão falhar
+    
 
 def pegar_funcionarios(tenant_id):
 
@@ -866,7 +874,7 @@ def estoque_listar_itens(tenant_id):
                     "id": linha[0],
                     "nome": linha[1],
                     "quant": int(linha[2]),
-                    "valor": float(linha[2]),
+                    "valor": float(linha[3]),
                 }
                 listaDeItens.append(valoresAchados)
                 
@@ -995,7 +1003,9 @@ def estoqueEditarProduto(lista_para_edicao, tenant_id, tipo):
             if conn is not None and conn.is_connected():
                 try:
                     cursor = conn.cursor()
-
+                    
+                    cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
+                    
                     query = """
                     DELETE FROM Produto WHERE id = %s
                     """
@@ -1003,6 +1013,9 @@ def estoqueEditarProduto(lista_para_edicao, tenant_id, tipo):
                     dados = (id, )
 
                     cursor.execute(query, dados)
+                    
+                    cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
+                    
                     conn.commit()
 
                     cursor.close()
@@ -1018,3 +1031,142 @@ def estoqueEditarProduto(lista_para_edicao, tenant_id, tipo):
                 conn.close()
                 return False
             
+def pegar_pedidos(tenant_id):
+
+    pedidos = []
+    
+    conn = conectar_mysql()
+
+    if conn is not None and conn.is_connected():
+        try:
+            cursor = conn.cursor()
+            query = """
+            SELECT 
+            id,
+            cliente,
+            valor
+            FROM
+            Pedido
+            WHERE
+            tenant_id = %s
+            """
+            cursor.execute(query, (tenant_id,))
+            resultados = cursor.fetchall()
+            
+            for linha in resultados:
+                
+                pediddo = {
+                    "id": linha[0],
+                    "cliente": linha[1],
+                    "valor": linha[2],
+                }
+                pedidos.append(pediddo)
+                
+            cursor.close()
+            conn.close()
+
+            if (pedidos != ""):
+
+                return pedidos
+            
+            else:
+                pedidos = ""
+                return pedidos
+             
+        except mysql.connector.Error as e:
+            pedidos = f"Erro ao executar a consulta: {e}"
+            conn.close()
+            return pedidos
+    else:
+        pedidos = "Conexão não disponível"
+        conn.close()
+        return pedidos
+   
+def pegar_pedidos_produto(id_pedido):
+
+    pedidos = []
+    
+    conn = conectar_mysql()
+
+    if conn is not None and conn.is_connected():
+        try:
+            cursor = conn.cursor()
+            query = """
+            SELECT
+            A.valor,
+            B.nome,
+            A.quantidade
+            FROM 
+            PedidoProduto AS A
+            JOIN
+            Produto AS B
+            ON
+            A.produto_id = B.id
+            WHERE
+            A.pedido_id = %s
+            """
+            cursor.execute(query, (id_pedido,))
+            resultados = cursor.fetchall()
+            
+            for linha in resultados:
+                
+                pediddo = {
+                    "nome_produto": linha[1],
+                    "valor_doproduto": linha[0],
+                    "quantidade_produto": linha[2],
+                }
+                pedidos.append(pediddo)
+                
+            cursor.close()
+            conn.close()
+
+            if (pedidos != ""):
+
+                return pedidos
+            
+            else:
+                pedidos = ""
+                return pedidos
+             
+        except mysql.connector.Error as e:
+            pedidos = f"Erro ao executar a consulta: {e}"
+            conn.close()
+            return pedidos
+    else:
+        pedidos = "Conexão não disponível"
+        conn.close()
+        return pedidos
+   
+def excluir():
+
+    conn = conectar_mysql()
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")  # Desativa restrições
+        cursor.execute("TRUNCATE TABLE Pedido")  
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")  # Reativa restrições
+        conn.commit()
+    except Exception as e:
+        
+        conn.rollback()
+    finally:
+        cursor.close()
+        
+        
+def excluir2():
+
+    conn = conectar_mysql()
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")  # Desativa restrições
+        cursor.execute("INSERT INTO Padaria (nome, dono_id, tenant_id) VALUES ('professor', 1, 101)")  # Corrigido
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")  # Reativa restrições
+        conn.commit()
+    except Exception as e:
+        
+        conn.rollback()
+    finally:
+        cursor.close()
+

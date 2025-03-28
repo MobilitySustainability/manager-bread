@@ -2,18 +2,18 @@ import tkinter as tk
 import ttkbootstrap as ttkb
 import threading
 from tkinter import ttk, messagebox
-from banco import cadAdm, deleteCadAdm, listarUsuarios, cadPadaria, obter_dono_id, deletePadaria
+from banco import insertCadAdm, deleteCadAdm, listarUsuarios, cadPadaria, obter_dono_id, deletePadaria
 from carregamento_de_telas import carregamento
 from cores import cor_fundo, cor_texto
 
-def AbrirCadAdm(container):
+def AbrirCadAdm(container, tenant_id):
     def carregar():
         carregamento(container)
-        container.after(0, cad_adm, container)
+        container.after(0, cad_adm, container, tenant_id)
     thread = threading.Thread(target=carregar)
     thread.start()
 
-def cad_adm(container):
+def cad_adm(container, tenant_id):
     for widget in container.winfo_children():
         widget.destroy()
 
@@ -27,31 +27,21 @@ def cad_adm(container):
         nome_padaria = entry_nome_padaria.get().strip()
 
         if nome and email and senha and nome_padaria:
-            # Cadastrar o Administrador
-            sucesso = cadAdm(nome, email, senha, 2)  # Supondo que o 2 seja para administradores
-            if sucesso:
-                # Sucesso ao cadastrar o administrador, agora vamos buscar o dono_id
-                # Buscar o dono_id do novo administrador (o último registrado)
-                dono_id = obter_dono_id(email)  # Função que retorna o dono_id a partir do e-mail
+            tipo = "Padaria"
+            retorno_banco = insertCadAdm(nome, email, senha, nome_padaria, tipo)
+            
+            if(retorno_banco == "Cadastro realizado com sucesso"):
+                lista_cad_adm.delete(*lista_cad_adm.get_children())
+                usuarios = listarUsuarios(tenant_id)
+                for usuario in usuarios:
+                    lista_cad_adm.insert("", "end", values=(usuario["nome"], usuario["email"], "******", usuario.get("nome_padaria", ""), "X"))
 
-                if dono_id:
-                    # Agora vamos cadastrar a padaria
-                    sucesso_padaria = cadPadaria(nome_padaria, dono_id)
-                    if sucesso_padaria:
-                        lista_cad_adm.insert("", "end", values=(nome, email, "******", nome_padaria, "X"))
-                        messagebox.showinfo("Sucesso", "Usuário e padaria cadastrados com sucesso!")
-                    else:
-                        messagebox.showerror("Erro", "Falha ao cadastrar a padaria no banco.")
-                else:
-                    messagebox.showerror("Erro", "Falha ao obter o dono_id para a padaria.")
-                    
-                # Limpar os campos após sucesso
-                entry_nome.delete(0, tk.END)
-                entry_email.delete(0, tk.END)
-                entry_senha.delete(0, tk.END)
-                entry_nome_padaria.delete(0, tk.END)
+                messagebox.showwarning("Aviso", "Usuario cadastrado com sucesso!")
+            
             else:
-                messagebox.showerror("Erro", "Falha ao cadastrar usuário no banco.")
+                
+                messagebox.showwarning("Aviso", "Erro")
+            
         else:
             messagebox.showwarning("Aviso", "Preencha todos os campos!")
 
@@ -89,7 +79,7 @@ def cad_adm(container):
     lista_cad_adm.grid(row=7, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
 
     # Preenchendo a lista com os usuários cadastrados
-    usuarios = listarUsuarios()
+    usuarios = listarUsuarios(tenant_id)
     for usuario in usuarios:
         lista_cad_adm.insert("", "end", values=(usuario["nome"], usuario["email"], "******", usuario.get("nome_padaria", ""), "X"))
 

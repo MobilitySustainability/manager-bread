@@ -12,13 +12,10 @@ def conectar_mysql():
         )
 
         if conn.is_connected():
-            print("Conexão bem-sucedida!")
             return conn
         else:
-            print("Falha ao conectar ao MySQL.")
             return None
 
     except Error as e:
-        print(f"Erro ao conectar ao MySQL: {e}")
         return None
 

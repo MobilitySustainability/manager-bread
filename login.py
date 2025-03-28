@@ -2,11 +2,19 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
+import os
+import sys
 from banco import verificar_login_bd
 from tela_inicial import criar_menu_principal
 from cores import cor_fundo, cor_texto, cor_borda, cor_botao, cor_hover_botao
 
 def entrar():
+    # Definir o caminho base para as imagens (considerando a execução como script ou executável)
+    if getattr(sys, 'frozen', False):  # Quando estiver empacotado como executável
+        base_path = sys._MEIPASS
+    else:  # Quando estiver rodando como script
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    
     usuario = entry_usuario.get()
     senha = entry_senha.get()
     
@@ -22,20 +30,23 @@ def entrar():
     entry_senha.pack_forget()
     btn_entrar.pack_forget()
 
-    # Exibe o texto "Carregando..."
-    label_carregando = tk.Label(frame, text="Carregando...", font=("Arial", 14), fg="black", bg=cor_fundo)
+    # Carregar a imagem GIF
+    gif_path = os.path.join(base_path, 'g0R5.gif')
+    gif_img = Image.open(gif_path)
+
+    gif_img = gif_img.resize((100, 100), Image.Resampling.LANCZOS)
+    gif_img_tk = ImageTk.PhotoImage(gif_img)
+    
+    label_carregando = tk.Label(frame, image=gif_img_tk, bg=cor_fundo)
+    label_carregando.image = gif_img_tk
     label_carregando.pack(pady=20)
 
-   
     login_window.update_idletasks()
 
-    
     retorno_banco = verificar_login_bd(usuario, senha)
 
-    
     label_carregando.destroy()
 
-   
     if retorno_banco:
         tipo_usu, usu_ativo, nome_usu, tenant_id = retorno_banco
         
@@ -71,8 +82,15 @@ def tela_login():
     
     login_window.geometry(f"{screen_width}x{screen_height}")
     
+    # Definir o caminho base para as imagens (considerando a execução como script ou executável)
+    if getattr(sys, 'frozen', False):  # Quando estiver empacotado como executável
+        base_path = sys._MEIPASS
+    else:  # Quando estiver rodando como script
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    
     # Carregar imagem de fundo
-    bg_img = Image.open("fundo_login.png")
+    bg_img_path = os.path.join(base_path, 'fundo_login.png')
+    bg_img = Image.open(bg_img_path)
     bg_width, bg_height = bg_img.size
     screen_width = login_window.winfo_screenwidth()
     screen_height = login_window.winfo_screenheight()
@@ -95,7 +113,8 @@ def tela_login():
     frame.place(relx=0.5, rely=0.5, anchor="center", width=400, height=550)
 
     # logo
-    logo_img = Image.open("logo.png")
+    logo_img_path = os.path.join(base_path, 'logo.png')
+    logo_img = Image.open(logo_img_path)
     logo_img = logo_img.resize((300, 200), Image.Resampling.LANCZOS)
     logo_img_tk = ImageTk.PhotoImage(logo_img)
     label_logo = tk.Label(frame, image=logo_img_tk, bg=cor_fundo)
